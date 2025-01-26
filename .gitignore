@@ -1,0 +1,24 @@
+# Ignore the Firebase service account key
+firebase-key.json
+
+# Ignore the virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Ignore environment variables
+.env
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Node.js dependencies (if you add a frontend framework later)
+node_modules/
