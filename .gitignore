@@ -1,21 +1,31 @@
 # Ignore the Firebase service account key
 firebase-key.json
 
-# Ignore the virtual environment
-venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.sqlite3
-
-# Ignore environment variables
+# Environment variables
 .env
+.env.*
+!.env.example
 
-# Ignore IDE-specific files
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+
+# IDE
 .vscode/
 .idea/
+
+# Database
+*.db
+
+# Other
+*.log
+.DS_Store
 
 # Ignore macOS system files
 .DS_Store

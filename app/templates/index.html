@@ -5,9 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zensprout</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .hero-section {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+                        url('{{ url_for("static", filename="images/zen-bg.jpg") }}') center/cover;
+            border-radius: 20px;
+            margin: 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text);
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .feature-description {
+            color: var(--text);
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .primary-cta {
+            background: var(--primary);
+            color: white;
+        }
+
+        .secondary-cta {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--text);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-section {
+                padding: 4rem 1rem;
+                margin: 1rem;
+            }
+
+            .features-grid {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Zensprout!</h1>
-    <p>Your productivity and wellness companion.</p>
+    <div class="hero-section">
+        <h1 class="hero-title">Welcome to Zensprout</h1>
+        <p class="hero-subtitle">Your personal productivity and wellness companion. Achieve more while maintaining balance in your life.</p>
+        
+        <div class="cta-buttons">
+            {% if user %}
+                <a href="{{ url_for('timer') }}" class="cta-button primary-cta">Go to Timer</a>
+                <a href="{{ url_for('logout') }}" class="cta-button secondary-cta">Log Out</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="cta-button primary-cta">Log In</a>
+                <a href="{{ url_for('signup') }}" class="cta-button secondary-cta">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">⏱️</div>
+            <h3 class="feature-title">Pomodoro Timer</h3>
+            <p class="feature-description">Stay focused and productive with our customizable Pomodoro timer. Work in focused sprints with timed breaks.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Progress Tracking</h3>
+            <p class="feature-description">Monitor your productivity patterns and achievements over time with detailed statistics and insights.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🧘</div>
+            <h3 class="feature-title">Wellness Integration</h3>
+            <p class="feature-description">Balance productivity with well-being through mindful breaks and wellness reminders.</p>
+        </div>
+    </div>
 </body>
 </html>

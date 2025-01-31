@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div class="card mx-auto" style="max-width: 400px;">
+    <div class="card-body p-5">
+        <h2 class="card-title mb-4">Welcome Back! 🔑</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                {{ form.email(class="form-control") }}
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                {{ form.password(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.remember_me(class="form-check-input") }}
+                {{ form.remember_me.label(class="form-check-label") }}
+            </div>
+            {{ form.submit(class="btn btn-primary w-100 mb-3") }}
+            <div class="text-center">
+                <small>New to Zensprout? <a href="{{ url_for('signup') }}">Create an account</a></small>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

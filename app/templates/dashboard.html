@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+<style>
+    .container {
+        max-width: 1200px;
+        padding: 2rem;
+    }
+
+    .stats-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 1.8rem;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(56, 239, 125, 0.1), rgba(17, 153, 142, 0.1));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .stats-card:hover::after {
+        opacity: 1;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #38ef7d, #11998e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 500;
+    }
+
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 300px;
+        width: 100%;
+        padding: 1rem 0;
+    }
+
+    .streak-flame {
+        font-size: 2.2rem;
+        filter: drop-shadow(0 0 10px rgba(255, 159, 28, 0.5));
+        animation: flame-pulse 2s infinite;
+    }
+
+    @keyframes flame-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    h2, h4 {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    h4 {
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .stats-card {
+            padding: 1.2rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+    }
+
+    .coming-soon {
+        font-size: 1.5rem;
+        color: #888;
+        text-align: center;
+        margin-top: 50px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="dashboardToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Dashboard is coming soon!
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastEl = document.getElementById('dashboardToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    });
+</script>
+
+<div class="container py-4">
+    <h2 class="mb-4">Your Progress Dashboard</h2>
+
+    <!-- Summary Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-value">{{ total_focus_time }}h</div>
+                <div class="stat-label">Total Focus Time</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-value">{{ avg_daily_time }}h</div>
+                <div class="stat-label">Avg. Daily Focus</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stat-value">{{ total_sessions }}</div>
+                <div class="stat-label">Total Sessions</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="streak-flame">🔥</div>
+                <div class="stat-value">{{ current_streak }}</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="stats-card">
+                <h4>Focus Time History</h4>
+                <div class="chart-container">
+                    <p class="coming-soon">Coming Soon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h4>Session Distribution</h4>
+                <div class="chart-container">
+                    <p class="coming-soon">Coming Soon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="stats-card">
+                <h4>Weekly Focus Time</h4>
+                <div class="chart-container">
+                    <p class="coming-soon">Coming Soon</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="stats-card">
+                <h4>Suggested Break Activities</h4>
+                <ul>
+                    {% for activity in activity_suggestions %}
+                    <li>{{ activity }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Log data to verify
+    console.log('Daily Labels:', {{ daily_labels | safe }});
+    console.log('Daily Durations:', {{ daily_durations | safe }});
+    console.log('Session Type Labels:', {{ session_type_labels | safe }});
+    console.log('Session Type Counts:', {{ session_type_counts | safe }});
+    console.log('Weekly Labels:', {{ weekly_labels | safe }});
+    console.log('Weekly Durations:', {{ weekly_durations | safe }});
+
+    // Focus Time History Chart
+    const focusCtx = document.getElementById('focusChart').getContext('2d');
+    new Chart(focusCtx, {
+        type: 'line',
+        data: {
+            labels: {{ daily_labels | safe }},
+            datasets: [{
+                label: 'Focus Hours',
+                data: {{ daily_durations | safe }},
+                borderColor: '#38ef7d',
+                backgroundColor: 'rgba(56, 239, 125, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Session Type Distribution Chart
+    const sessionTypeCtx = document.getElementById('sessionTypeChart').getContext('2d');
+    new Chart(sessionTypeCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ session_type_labels | safe }},
+            datasets: [{
+                data: {{ session_type_counts | safe }},
+                backgroundColor: ['#38ef7d', '#11998e', '#ff6b6b', '#ffd93d']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Weekly Focus Time Chart
+    const weeklyFocusCtx = document.getElementById('weeklyFocusChart').getContext('2d');
+    new Chart(weeklyFocusCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ weekly_labels | safe }},
+            datasets: [{
+                label: 'Weekly Focus Hours',
+                data: {{ weekly_durations | safe }},
+                backgroundColor: '#38ef7d'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %} 

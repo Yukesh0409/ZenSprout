@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}{{ current_user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-4">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <h3 class="card-title mb-3">{{ current_user.username }}</h3>
+                    <p class="text-muted">{{ current_user.email }}</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <h4>{{ total_sessions }}</h4>
+                            <span>Sessions</span>
+                        </div>
+                        <div class="stat-item">
+                            <h4>{{ total_hours }}h</h4>
+                            <span>Total Time</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">User Information</h4>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Username</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ current_user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Email</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ current_user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Age</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ current_user.age or 'Not specified' }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Gender</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ current_user.gender or 'Not specified' }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Goals</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ current_user.goals or 'No goals set' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session History -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Recent Sessions</h4>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in sessions %}
+                                <tr>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if session.session_type == 'work' else 'bg-info' }}">
+                                            {{ session.session_type|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ (session.duration / 60)|round|int }} minutes</td>
+                                    <td>{{ session.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-card {
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+    }
+
+    .profile-avatar {
+        font-size: 4rem;
+        color: var(--bs-primary);
+    }
+
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-item h4 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--bs-primary);
+    }
+
+    .stat-item span {
+        font-size: 0.875rem;
+        color: var(--bs-secondary);
+    }
+
+    .card {
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+    }
+
+    .table {
+        color: var(--bs-body-color);
+    }
+
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 6px;
+    }
+</style>
+{% endblock %} 

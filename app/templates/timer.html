@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+{% block title %}Pomodoro Timer{% endblock %}
+
+{% block content %}
+<div class="card mx-auto timer-card">
+    <div class="card-body p-4 text-center">
+        <h2 class="timer-title">Pomodoro Timer <span class="timer-icon">🍅</span></h2>
+        <div class="timer-display working">
+            <span id="minutes">25</span>:<span id="seconds">00</span>
+        </div>
+        <div class="timer-controls mt-4">
+            <button id="start-btn" class="control-btn primary">Start</button>
+            <button id="pause-btn" class="control-btn warning" disabled>Pause</button>
+            <button id="reset-btn" class="control-btn danger" disabled>Reset</button>
+        </div>
+        <div class="session-count">
+            <p>Session: <span id="session-count">0</span></p>
+        </div>
+        <div class="timer-modes">
+            <button id="pomo-btn" class="mode-btn active">Focus</button>
+            <button id="short-btn" class="mode-btn">Short Break</button>
+            <button id="long-btn" class="mode-btn">Long Break</button>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Modal -->
+<div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <h4 class="activity-title mb-4">Your Break Activity</h4>
+                <div class="activity-box">
+                    <p id="activitySuggestion" class="activity-text"></p>
+                </div>
+                <div class="modal-buttons mt-4">
+                    <button type="button" class="btn btn-primary me-3" onclick="startActivityTimer()" data-bs-dismiss="modal">Let's Go! 🚀</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Maybe Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this modal for the loading animation -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="loading-title mb-3">Generating breaks personalized for you...</h5>
+                <p class="loading-subtitle">Our AI is crafting the perfect break activity just for you!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timer-card {
+        max-width: 400px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 1.8rem;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin: 2rem auto;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timer-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .timer-icon {
+        font-size: 1.2rem;
+        opacity: 0.8;
+    }
+
+    .timer-display {
+        font-size: 4.5rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        margin: 2rem 0;
+        font-family: 'Inter', sans-serif;
+        transition: color 0.3s ease;
+    }
+
+    .timer-display.working {
+        color: #38ef7d;
+    }
+
+    .timer-display.break {
+        color: #64B5F6;
+    }
+
+    .timer-controls {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .control-btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .control-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .control-btn.primary {
+        background: linear-gradient(45deg, rgba(56, 239, 125, 0.15), rgba(17, 153, 142, 0.15));
+    }
+
+    .control-btn.warning {
+        background: linear-gradient(45deg, rgba(255, 171, 64, 0.15), rgba(255, 145, 0, 0.15));
+    }
+
+    .control-btn.danger {
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(255, 82, 82, 0.15));
+    }
+
+    .session-count {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 1rem 0;
+    }
+
+    .timer-modes {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .mode-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: transparent;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .mode-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-1px);
+    }
+
+    .mode-btn.active {
+        background: rgba(56, 239, 125, 0.15);
+        color: #38ef7d;
+        border-color: rgba(56, 239, 125, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .timer-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .timer-display {
+            font-size: 3.5rem;
+        }
+
+        .control-btn {
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    .modal-content {
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #38ef7d !important;
+    }
+
+    .loading-title {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-top: 1rem;
+    }
+
+    .loading-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    /* Pulsing animation */
+    @keyframes pulse {
+        0% { opacity: 0.7; }
+        50% { opacity: 1; }
+        100% { opacity: 0.7; }
+    }
+
+    .loading-title {
+        animation: pulse 2s infinite;
+    }
+
+    .activity-title {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-box {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .activity-text {
+        color: #ffffff;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin: 0;
+        white-space: pre-line;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        background: #38ef7d;
+        border: none;
+        color: #1a1a1a;
+        font-weight: 600;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #38ef7d;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Emoji styling */
+    .activity-text emoji {
+        font-size: 1.4em;
+        margin-right: 0.2em;
+    }
+</style>
+
+<script>
+    let workTime = 25 * 60; // 25 minutes
+    let shortBreakTime = 5 * 60; // 5 minutes
+    let longBreakTime = 10 * 60; // 10 minutes
+    let timer;
+    let isWorking = true;
+    let isPaused = false;
+    let sessionCount = 0;
+    let pomodoroCount = 0; // Track number of completed pomodoros
+    let countdownInterval;
+    let currentBreakType = '';
+
+    const minutesDisplay = document.getElementById('minutes');
+    const secondsDisplay = document.getElementById('seconds');
+    const sessionCountDisplay = document.getElementById('session-count');
+    const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const pomoBtn = document.getElementById('pomo-btn');
+    const shortBtn = document.getElementById('short-btn');
+    const longBtn = document.getElementById('long-btn');
+    const timerDisplay = document.querySelector('.timer-display');
+
+    function updateDisplay(time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        minutesDisplay.textContent = String(minutes).padStart(2, '0');
+        secondsDisplay.textContent = String(seconds).padStart(2, '0');
+    }
+
+    function startTimer() {
+        if (isPaused) {
+            isPaused = false;
+        } else {
+            timer = isWorking ? workTime : timer;
+        }
+
+        // Update timer display class
+        timerDisplay.classList.remove('working', 'break');
+        timerDisplay.classList.add(isWorking ? 'working' : 'break');
+
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        resetBtn.disabled = false;
+
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+
+        countdownInterval = setInterval(() => {
+            if (!isPaused) {
+                updateDisplay(timer);
+                timer--;
+
+                if (timer < 0) {
+                    clearInterval(countdownInterval);
+                    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+                    audio.play();
+
+                    // Save session data
+                    const sessionType = isWorking ? 'work' : 'break';
+                    const duration = isWorking ? workTime : timer;
+                    saveSession(sessionType, duration);
+
+                    if (isWorking) {
+                        sessionCount++;
+                        pomodoroCount++;
+                        sessionCountDisplay.textContent = sessionCount;
+                        
+                        if (pomodoroCount % 4 === 0) {
+                            alert('🎉 Great job! Time for a long break!');
+                            timer = longBreakTime;
+                        } else {
+                            alert('🌟 Time for a short break!');
+                            timer = shortBreakTime;
+                        }
+                        isWorking = false;
+                    } else {
+                        alert('💪 Break over! Back to work.');
+                        isWorking = true;
+                        timer = workTime;
+                    }
+                    startTimer(); // Restart the timer for the next session
+                }
+            }
+        }, 1000);
+    }
+
+    function saveSession(sessionType, duration) {
+        fetch('/save-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_type: sessionType,
+                duration: duration,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Session saved:', data);
+        })
+        .catch(error => {
+            console.error('Error saving session:', error);
+        });
+    }
+
+    function pauseTimer() {
+        isPaused = true;
+        pauseBtn.disabled = true;
+        startBtn.disabled = false;
+
+        // Clear the interval when paused
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(countdownInterval); // Clear the interval
+        isWorking = true;
+        isPaused = false;
+        timer = workTime;
+        updateDisplay(timer);
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        resetBtn.disabled = true;
+
+        // Reset timer display class
+        timerDisplay.classList.remove('break');
+        timerDisplay.classList.add('working');
+    }
+
+    // Add new functions to handle timer type changes
+    function setPomodoroTimer() {
+        clearInterval(countdownInterval);
+        isWorking = true;
+        timer = workTime;
+        updateDisplay(timer);
+        timerDisplay.classList.remove('break');
+        timerDisplay.classList.add('working');
+        resetButtonStates();
+    }
+
+    function setShortBreakTimer() {
+        clearInterval(countdownInterval);
+        isWorking = false;
+        timer = shortBreakTime;
+        updateDisplay(timer);
+        timerDisplay.classList.remove('working');
+        timerDisplay.classList.add('break');
+        resetButtonStates();
+    }
+
+    function setLongBreakTimer() {
+        clearInterval(countdownInterval);
+        isWorking = false;
+        timer = longBreakTime;
+        updateDisplay(timer);
+        timerDisplay.classList.remove('working');
+        timerDisplay.classList.add('break');
+        resetButtonStates();
+    }
+
+    function resetButtonStates() {
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        resetBtn.disabled = true;
+        isPaused = false;
+    }
+
+    // Add event listeners for new buttons
+    pomoBtn.addEventListener('click', setPomodoroTimer);
+    shortBtn.addEventListener('click', setShortBreakTimer);
+    longBtn.addEventListener('click', setLongBreakTimer);
+
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    document.getElementById('short-btn').addEventListener('click', function() {
+        startBreakSession('short');
+    });
+
+    document.getElementById('long-btn').addEventListener('click', function() {
+        startBreakSession('long');
+    });
+
+    function startBreakSession(type) {
+        currentBreakType = type;  // Store the break type
+        // Show loading modal
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+
+        fetch('/start_break', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ type: type })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading modal
+            loadingModal.hide();
+            
+            // Show the activity suggestion
+            document.getElementById('activitySuggestion').textContent = data.activity;
+            const activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
+            activityModal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loadingModal.hide();
+        });
+    }
+
+    function startActivityTimer() {
+        // Set the appropriate timer based on break type
+        if (currentBreakType === 'short') {
+            setShortBreakTimer();
+        } else {
+            setLongBreakTimer();
+        }
+        
+        // Start the timer automatically
+        startTimer();
+    }
+</script>
+{% endblock %}
